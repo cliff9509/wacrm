@@ -1,5 +1,6 @@
 -- ============================================================
 -- 035_interactive_messages.sql
+SET search_path TO public, extensions;
 --
 -- Full support for WhatsApp interactive messages (reply buttons +
 -- list messages) beyond the Flows subsystem.

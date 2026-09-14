@@ -1,5 +1,6 @@
 -- ============================================================
 -- 006_automations.sql — Automations feature
+SET search_path TO public, extensions;
 --
 -- Idempotent migration — safe to run multiple times.
 -- Follows the same conventions as 001_initial_schema.sql:

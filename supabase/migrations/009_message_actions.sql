@@ -1,5 +1,6 @@
 -- ============================================================
 -- Chat actions: reply linkage + reactions
+SET search_path TO public, extensions;
 --
 -- Adds two things the chat UI now needs:
 --
