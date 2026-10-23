@@ -21,7 +21,7 @@
 -- ============================================================
 
 ALTER TABLE accounts
-  ADD COLUMN IF NOT EXISTS default_currency TEXT NOT NULL DEFAULT 'USD';
+  ADD COLUMN IF NOT EXISTS default_currency TEXT NOT NULL DEFAULT 'KES';
 
 -- Keep the value an ISO-4217-shaped 3-letter uppercase code without
 -- pinning to a fixed enum — forks can use any currency Intl supports.

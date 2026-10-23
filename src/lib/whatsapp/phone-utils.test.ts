@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isRecipientNotAllowedError,
   isValidE164,
+  isKenyanMobileNumber,
   normalizePhone,
   phoneVariants,
   phonesMatch,
@@ -12,6 +13,7 @@ describe("sanitizePhoneForMeta", () => {
   it("strips +, spaces, and dashes leaving only digits", () => {
     expect(sanitizePhoneForMeta("+370 639 49836")).toBe("37063949836");
     expect(sanitizePhoneForMeta("+1 (415) 555-1212")).toBe("14155551212");
+    expect(sanitizePhoneForMeta("0712 345 678")).toBe("254712345678");
   });
 
   it("returns an empty string for falsy input", () => {
@@ -28,6 +30,12 @@ describe("sanitizePhoneForMeta", () => {
 });
 
 describe("normalizePhone", () => {
+  it("normalizes common Kenyan mobile input formats", () => {
+    expect(normalizePhone("0712345678")).toBe("254712345678");
+    expect(normalizePhone("0112345678")).toBe("254112345678");
+    expect(normalizePhone("+254712345678")).toBe("254712345678");
+    expect(isKenyanMobileNumber("0712345678")).toBe(true);
+  });
   it("matches sanitizePhoneForMeta byte-for-byte (shared canonical form)", () => {
     const samples = ["+370 12345", "abc-555-DEF", "", "0044 7000 0000 0000"];
     for (const s of samples) {

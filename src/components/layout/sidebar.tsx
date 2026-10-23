@@ -27,6 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { AccountRole } from "@/lib/auth/roles";
+import { BRAND } from "@/lib/brand";
 
 // Per-role chip metadata used in the sidebar's account strip + the
 // Members tab roster. Keeping this near both consumers in a single
@@ -192,7 +193,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <MessageSquare className="h-4 w-4" />
             </div>
             <span className="text-sm font-semibold text-foreground">
-              {t("title")}
+              {BRAND.name}
             </span>
           </Link>
           <button

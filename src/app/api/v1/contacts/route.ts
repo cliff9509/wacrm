@@ -9,6 +9,7 @@
 // ============================================================
 
 import { requireApiKey } from '@/lib/auth/api-context';
+import { isValidE164, normalizePhoneForStorage } from '@/lib/whatsapp/phone-utils';
 import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import {
   parseListParams,
@@ -105,9 +106,12 @@ export async function POST(request: Request) {
       return fail('bad_request', 'Request body must be a JSON object', 400);
     }
 
-    const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+    const phone = typeof body.phone === 'string' ? normalizePhoneForStorage(body.phone) : '';
     if (!phone) {
       return fail('bad_request', "'phone' is required", 400);
+    }
+    if (!isValidE164(phone)) {
+      return fail('bad_request', "'phone' must be a valid international phone number", 400);
     }
 
     const auditUserId = await resolveAuditUserId(ctx.supabase, ctx.accountId);

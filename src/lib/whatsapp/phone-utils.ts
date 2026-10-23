@@ -5,7 +5,7 @@
  */
 export function sanitizePhoneForMeta(phone: string): string {
   if (!phone) return ''
-  return phone.replace(/\D/g, '')
+  return normalizePhone(phone)
 }
 
 /**
@@ -14,7 +14,21 @@ export function sanitizePhoneForMeta(phone: string): string {
  */
 export function normalizePhone(phone: string): string {
   if (!phone) return ''
-  return phone.replace(/\D/g, '')
+  const digits = phone.replace(/\D/g, '')
+  // Kenyan domestic 07… and 01… numbers are stored in Meta-ready form.
+  if (/^0(?:[17]\d{8})$/.test(digits)) return `254${digits.slice(1)}`
+  if (/^[17]\d{8}$/.test(digits)) return `254${digits}`
+  if (/^2540(?:[17]\d{8})$/.test(digits)) return `254${digits.slice(4)}`
+  return digits
+}
+
+export function normalizePhoneForStorage(phone: string): string {
+  const normalized = normalizePhone(phone)
+  return normalized ? `+${normalized}` : ''
+}
+
+export function isKenyanMobileNumber(phone: string): boolean {
+  return /^254(?:7|1)\d{8}$/.test(normalizePhone(phone))
 }
 
 /**

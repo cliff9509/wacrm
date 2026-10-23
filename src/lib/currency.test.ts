@@ -48,6 +48,10 @@ describe("formatCurrency", () => {
 });
 
 describe("formatCurrencyShort", () => {
+  it("uses KSh for Kenyan Shillings", () => {
+    expect(formatCurrencyShort(1_500)).toBe("KSh1.5k");
+    expect(formatCurrency(1_500)).toContain("1,500");
+  });
   it("abbreviates millions and thousands with the currency symbol", () => {
     expect(formatCurrencyShort(2_500_000, "USD")).toBe("$2.5M");
     expect(formatCurrencyShort(3_400, "USD")).toBe("$3.4k");

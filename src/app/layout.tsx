@@ -14,6 +14,7 @@ import {
   STORAGE_KEY,
   THEME_IDS,
 } from "@/lib/themes";
+import { BRAND } from "@/lib/brand";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -22,10 +23,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: BRAND.productName,
+    template: `%s | ${BRAND.name}`,
   },
-  description: "Self-hostable CRM template for WhatsApp.",
+  description: BRAND.description,
   robots: {
     index: false,
     follow: false,
@@ -87,7 +88,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale}
+      lang={locale || BRAND.locale}
       data-theme={DEFAULT_THEME}
       data-mode={DEFAULT_MODE}
       className={`${inter.variable} h-full antialiased`}

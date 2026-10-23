@@ -11,7 +11,8 @@
  */
 
 /** App-wide fallback when no account/deal currency is available. */
-export const DEFAULT_CURRENCY = "USD";
+export const DEFAULT_CURRENCY = "KES";
+export const DEFAULT_CURRENCY_LOCALE = "en-KE";
 
 export interface CurrencyOption {
   /** ISO-4217 code, e.g. "USD". Stored verbatim in the DB. */
@@ -28,6 +29,7 @@ export interface CurrencyOption {
  * list to offer more — nothing else needs to change.
  */
 export const CURRENCIES: CurrencyOption[] = [
+  { code: "KES", label: "Kenyan Shilling", symbol: "KSh" },
   { code: "USD", label: "US Dollar", symbol: "$" },
   { code: "EUR", label: "Euro", symbol: "€" },
   { code: "GBP", label: "British Pound", symbol: "£" },
@@ -65,7 +67,15 @@ export function formatCurrency(
   const code = (currency || DEFAULT_CURRENCY).trim();
   const amount = Number(value) || 0;
   try {
-    return new Intl.NumberFormat(undefined, {
+    // Intl's KES symbol varies by runtime ("Ksh", "KES", or a NBSP).
+    // The product contract uses the stable, locally familiar KSh label.
+    if (code === "KES") {
+      return `KSh ${new Intl.NumberFormat(DEFAULT_CURRENCY_LOCALE, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(amount)}`;
+    }
+    return new Intl.NumberFormat(DEFAULT_CURRENCY_LOCALE, {
       style: "currency",
       currency: code,
       minimumFractionDigits: 0,
@@ -74,7 +84,7 @@ export function formatCurrency(
   } catch {
     // Invalid ISO code — show the raw code + grouped number so the
     // value is still legible instead of throwing.
-    return `${code} ${new Intl.NumberFormat(undefined, {
+    return `${code} ${new Intl.NumberFormat(DEFAULT_CURRENCY_LOCALE, {
       maximumFractionDigits: 0,
     }).format(amount)}`;
   }

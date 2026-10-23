@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { normalizePhoneForStorage } from '@/lib/whatsapp/phone-utils';
 
 interface ContactFormProps {
   open: boolean;
@@ -154,7 +155,7 @@ export function ContactForm({
           .from('contacts')
           .update({
             name: name.trim() || null,
-            phone: phone.trim(),
+            phone: normalizePhoneForStorage(phone),
             email: email.trim() || null,
             company: company.trim() || null,
             updated_at: new Date().toISOString(),
@@ -168,7 +169,7 @@ export function ContactForm({
             user_id: user.id,
             account_id: accountId,
             name: name.trim() || null,
-            phone: phone.trim(),
+            phone: normalizePhoneForStorage(phone),
             email: email.trim() || null,
             company: company.trim() || null,
           })
@@ -207,7 +208,7 @@ export function ContactForm({
           const existing = await findExistingContact(
             supabase,
             accountId,
-            phone.trim(),
+            normalizePhoneForStorage(phone),
           );
           if (existing) setDupMatch({ contact: existing, exact: true });
         }
@@ -260,7 +261,7 @@ export function ContactForm({
                 if (dupMatch) setDupMatch(null);
               }}
               onBlur={checkDuplicate}
-              placeholder={t('phonePlaceholder')}
+              placeholder="0712 345 678 or +254 712 345 678"
               className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
             />
             {dupMatch ? (
