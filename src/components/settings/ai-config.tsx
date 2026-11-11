@@ -26,7 +26,10 @@ import {
 } from '@/components/ui/select';
 import { SettingsPanelHead } from './settings-panel-head';
 import { AiKnowledgeCard } from './ai-knowledge';
-import { AI_PROVIDER_DEFAULT_MODEL } from '@/lib/ai/defaults';
+import {
+  AI_PROVIDER_DEFAULT_MODEL,
+  AI_PROVIDER_SUGGESTED_MODELS,
+} from '@/lib/ai/defaults';
 import type { AiProvider } from '@/lib/ai/types';
 import type { AccountMember } from '@/types';
 import { fetchAccountMembers, memberLabel } from '@/lib/account/members';
@@ -41,11 +44,13 @@ const HANDOFF_QUEUE = '__queue__';
 const PROVIDER_LABEL: Record<AiProvider, string> = {
   openai: 'OpenAI',
   anthropic: 'Anthropic (Claude)',
+  nvidia_nim: 'NVIDIA NIM',
 };
 
 const KEY_PLACEHOLDER: Record<AiProvider, string> = {
   openai: 'sk-...',
   anthropic: 'sk-ant-...',
+  nvidia_nim: 'nvapi-...',
 };
 
 export function AiConfig() {
@@ -112,7 +117,7 @@ export function AiConfig() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!accountId || loadedAccountIdRef.current === accountId) return;
@@ -129,8 +134,7 @@ export function AiConfig() {
   const handleProviderChange = (next: AiProvider) => {
     setProvider(next);
     const isDefaultModel =
-      model === AI_PROVIDER_DEFAULT_MODEL.openai ||
-      model === AI_PROVIDER_DEFAULT_MODEL.anthropic ||
+      Object.values(AI_PROVIDER_DEFAULT_MODEL).includes(model) ||
       model.trim() === '';
     if (isDefaultModel) setModel(AI_PROVIDER_DEFAULT_MODEL[next]);
   };
@@ -281,6 +285,9 @@ export function AiConfig() {
                     <SelectItem value="anthropic">
                       {PROVIDER_LABEL.anthropic}
                     </SelectItem>
+                    <SelectItem value="nvidia_nim">
+                      {PROVIDER_LABEL.nvidia_nim}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -289,11 +296,32 @@ export function AiConfig() {
                 <Label htmlFor="ai-model">{t('model')}</Label>
                 <Input
                   id="ai-model"
+                  list="ai-model-options"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder={AI_PROVIDER_DEFAULT_MODEL[provider]}
                   disabled={disabled}
                 />
+                <datalist id="ai-model-options">
+                  {(AI_PROVIDER_SUGGESTED_MODELS[provider] ?? []).map(
+                    (suggestedModel) => (
+                      <option key={suggestedModel} value={suggestedModel} />
+                    ),
+                  )}
+                </datalist>
+                {provider === 'nvidia_nim' && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('nvidiaNimNotice')}{' '}
+                    <a
+                      href="https://build.nvidia.com/explore/discover"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      {t('browseNvidiaModels')}
+                    </a>
+                  </p>
+                )}
               </div>
             </div>
 

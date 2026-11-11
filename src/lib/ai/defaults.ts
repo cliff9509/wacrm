@@ -13,6 +13,18 @@ import type { AiProvider } from './types'
 export const AI_PROVIDER_DEFAULT_MODEL: Record<AiProvider, string> = {
   openai: 'gpt-5.4-mini',
   anthropic: 'claude-haiku-4-5-20251001',
+  nvidia_nim: 'nvidia/nemotron-3-nano-30b-a3b',
+}
+
+/** Suggested model IDs from NVIDIA's catalog; the settings input remains editable. */
+export const AI_PROVIDER_SUGGESTED_MODELS: Partial<Record<AiProvider, string[]>> = {
+  nvidia_nim: [
+    'deepseek-ai/deepseek-v4.1-flash',
+    'nvidia/nemotron-3.5-lightning-30b-a3b',
+    'nvidia/nemotron-3-nano-30b-a3b',
+    'nvidia/nemotron-3-ultra-550b-a55b',
+    'nvidia/nemotron-3.5-super-vl-120b-a12b',
+  ],
 }
 
 /**

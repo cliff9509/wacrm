@@ -192,3 +192,37 @@ describe('generateReply — Anthropic', () => {
     expect(body.messages).toHaveLength(1)
   })
 })
+
+describe('generateReply — NVIDIA NIM', () => {
+  it('calls the OpenAI-compatible endpoint and returns reply and usage', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      okResponse({
+        choices: [{ message: { content: 'Hello from NIM!' } }],
+        usage: { prompt_tokens: 18, completion_tokens: 6, total_tokens: 24 },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const res = await generateReply({
+      config: config({
+        provider: 'nvidia_nim',
+        model: 'nvidia/nemotron-3-nano-30b-a3b',
+        apiKey: 'nvapi-test',
+      }),
+      systemPrompt: 'sys',
+      messages: [{ role: 'user', content: 'Hi' }],
+    })
+
+    expect(res).toEqual({
+      text: 'Hello from NIM!',
+      handoff: false,
+      usage: { promptTokens: 18, completionTokens: 6, totalTokens: 24 },
+    })
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toBe('https://integrate.api.nvidia.com/v1/chat/completions')
+    expect(opts.headers.Authorization).toBe('Bearer nvapi-test')
+    const body = JSON.parse(opts.body)
+    expect(body.model).toBe('nvidia/nemotron-3-nano-30b-a3b')
+    expect(body.max_tokens).toBeGreaterThan(0)
+  })
+})
