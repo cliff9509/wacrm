@@ -13,9 +13,11 @@ import { useRealtime } from "@/hooks/use-realtime";
 import { ConversationList } from "@/components/inbox/conversation-list";
 import { MessageThread } from "@/components/inbox/message-thread";
 import { ContactSidebar } from "@/components/inbox/contact-sidebar";
+import { NewMessageDialog } from "@/components/inbox/new-message-dialog";
 import { toast } from "sonner";
 import { WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCan } from "@/hooks/use-can";
 
 // Remembers the agent's show/hide choice for the desktop contact panel
 // across reloads and sessions (device-scoped, like the theme prefs).
@@ -36,6 +38,7 @@ function InboxPageInner() {
   const t = useTranslations("Inbox.page");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const canSendMessages = useCan("send-messages");
   /**
    * `?c=<id>` deep-link support. Used when landing here from the
    * dashboard's recent-conversations list so the right thread opens
@@ -47,6 +50,7 @@ function InboxPageInner() {
   const [activeConversation, setActiveConversation] =
     useState<Conversation | null>(null);
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
+  const [newMessageOpen, setNewMessageOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [whatsappConnected, setWhatsappConnected] = useState<boolean | null>(
     null
@@ -488,6 +492,30 @@ function InboxPageInner() {
     [activeConversation?.id, router]
   );
 
+  const handleOutboundMessageSent = useCallback(
+    async (conversationId: string) => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("conversations")
+        .select(CONVERSATION_SELECT)
+        .eq("id", conversationId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Failed to load newly messaged conversation:", error);
+        toast.error(t("conversationOpenFailed"));
+        return;
+      }
+      if (!data) {
+        toast.error(t("conversationOpenFailed"));
+        return;
+      }
+
+      handleSelectConversation(normalizeConversation(data));
+    },
+    [handleSelectConversation, t],
+  );
+
   // Mobile "back" — deselect the conversation so the list pane comes
   // back. Also clears the ?c= param so a refresh lands on the list
   // instead of re-opening the thread the user just backed out of.
@@ -590,6 +618,9 @@ function InboxPageInner() {
             conversations={conversations}
             onConversationsLoaded={handleConversationsLoaded}
             resyncToken={resyncToken}
+            onNewMessage={
+              canSendMessages ? () => setNewMessageOpen(true) : undefined
+            }
           />
         </div>
 
@@ -636,6 +667,11 @@ function InboxPageInner() {
           </div>
         )}
       </div>
+      <NewMessageDialog
+        open={newMessageOpen}
+        onOpenChange={setNewMessageOpen}
+        onSent={handleOutboundMessageSent}
+      />
     </div>
   );
 }

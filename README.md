@@ -24,8 +24,8 @@ clone or fork it to run your own CRM.
 ## What you get out of the box
 
 - **Shared inbox** on the official WhatsApp Business API — multiple
-  agents working one number, per-conversation assignment, status, and
-  notes.
+  agents working one number, start conversations with opted-in contacts
+  using approved templates, per-conversation assignment, status, and notes.
 - **Contacts + tags + custom fields**, CSV import, deduplication.
 - **Sales pipelines** (Kanban) with deals linked to conversations.
 - **Broadcasts** with Meta-approved templates, delivery + read

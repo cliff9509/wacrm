@@ -134,9 +134,11 @@
   },
   "Inbox": {
     "page": {
-      "whatsappNotConnected": "WhatsApp® is not connected. Go to Settings to connect your account."
+      "whatsappNotConnected": "WhatsApp® is not connected. Go to Settings to connect your account.",
+      "conversationOpenFailed": "The message was sent, but the conversation could not be opened."
     },
     "conversationList": {
+      "newMessage": "New message",
       "searchPlaceholder": "Search conversations...",
       "filterAll": "All",
       "filterUnread": "Unread",
@@ -150,6 +152,16 @@
       "noConversations": "No conversations found",
       "noMessagesYet": "No messages yet",
       "unknown": "Unknown"
+    },
+    "newMessage": {
+      "title": "Start a new conversation",
+      "description": "Choose a contact to send them a WhatsApp message.",
+      "searchPlaceholder": "Search contacts by name or phone...",
+      "noContacts": "No contacts found.",
+      "loadFailed": "Failed to load contacts.",
+      "consentNotice": "To start a conversation, choose an approved template and message only contacts who have opted in. You can send free-form messages after they reply, within 24 hours.",
+      "sent": "Template sent.",
+      "sendFailed": "Failed to send template: {reason}"
     },
     "messageThread": {
       "backToConversations": "Back to conversations",

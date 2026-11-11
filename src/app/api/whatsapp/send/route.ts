@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const {
       // `conversation_id` targets an existing thread (inbox). `contact_id`
       // lets a caller initiate from a contact that may have no conversation
-      // yet (Contact detail → Send template) — we find-or-create one below.
+      // yet (Contact detail or Inbox → Send template) — we find-or-create one below.
       conversation_id: conversationIdInput,
       contact_id,
       message_type,
@@ -66,6 +66,16 @@ export async function POST(request: Request) {
           error:
             'Either conversation_id or contact_id, plus message_type, are required',
         },
+        { status: 400 }
+      )
+    }
+
+    // A business-initiated conversation must start with an approved
+    // WhatsApp template. Free-form messages are only allowed in an existing
+    // customer service window and target an existing conversation.
+    if (!conversationIdInput && message_type !== 'template') {
+      return NextResponse.json(
+        { error: 'A template message is required to start a conversation' },
         { status: 400 }
       )
     }
@@ -169,6 +179,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
+        conversation_id: conversationId,
         message_id: result.messageId,
         whatsapp_message_id: result.whatsappMessageId,
       })

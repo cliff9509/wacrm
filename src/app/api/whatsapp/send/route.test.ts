@@ -202,6 +202,7 @@ describe('POST /api/whatsapp/send — contact_id template path', () => {
 
     expect(res.status).toBe(200)
     expect(json.success).toBe(true)
+    expect(json.conversation_id).toBe('conv-new')
     expect(json.whatsapp_message_id).toBe('wamid-1')
 
     // A conversation was created for this contact.
@@ -254,6 +255,19 @@ describe('POST /api/whatsapp/send — contact_id template path', () => {
 
     expect(res.status).toBe(404)
     expect(json.error).toMatch(/contact not found/i)
+    expect(sendTemplateMessage).not.toHaveBeenCalled()
+  })
+
+  it('requires a template when starting from a contact', async () => {
+    const res = await postContactTemplate({
+      message_type: 'text',
+      content_text: 'Hello',
+    })
+    const json = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(json.error).toMatch(/template message is required/i)
+    expect(conversationInserts).toHaveLength(0)
     expect(sendTemplateMessage).not.toHaveBeenCalled()
   })
 
