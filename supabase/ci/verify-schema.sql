@@ -37,6 +37,18 @@ BEGIN
     RAISE EXCEPTION 'the flow-media bucket row was not created (migration 016)';
   END IF;
 
+  -- NVIDIA NIM configuration is rejected by the original provider
+  -- constraint unless migration 040 updates it.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.ai_configs'::regclass
+      AND conname = 'ai_configs_provider_check'
+      AND pg_get_constraintdef(oid) LIKE '%nvidia_nim%'
+  ) THEN
+    RAISE EXCEPTION 'NVIDIA NIM is not allowed by ai_configs_provider_check (migration 040)';
+  END IF;
+
   -- Account scoping (017) is load-bearing for every RLS policy.
   IF to_regclass('public.accounts') IS NULL THEN
     RAISE EXCEPTION 'public.accounts is missing — migration 017 did not apply';

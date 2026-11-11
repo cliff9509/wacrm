@@ -14,6 +14,33 @@ function bad(message: string) {
   return NextResponse.json({ error: message }, { status: 400 })
 }
 
+function saveErrorResponse(
+  error: { code: string; message: string },
+  operation: 'update' | 'insert',
+  provider: AiProvider,
+) {
+  console.error(`[ai/config POST] ${operation} error:`, error)
+
+  if (
+    provider === 'nvidia_nim' &&
+    error.code === '23514' &&
+    error.message.includes('ai_configs_provider_check')
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          'Your database does not yet support NVIDIA NIM. Apply supabase/migrations/040_ai_nvidia_nim.sql, then retry.',
+      },
+      { status: 503 },
+    )
+  }
+
+  return NextResponse.json(
+    { error: 'Failed to save AI configuration' },
+    { status: 500 },
+  )
+}
+
 /**
  * GET /api/ai/config
  *
@@ -225,11 +252,7 @@ export async function POST(request: Request) {
         .update(encryptedKey ? { ...shared, api_key: encryptedKey } : shared)
         .eq('account_id', accountId)
       if (upErr) {
-        console.error('[ai/config POST] update error:', upErr)
-        return NextResponse.json(
-          { error: 'Failed to save AI configuration' },
-          { status: 500 },
-        )
+        return saveErrorResponse(upErr, 'update', provider)
       }
     } else {
       const { error: insErr } = await supabase.from('ai_configs').insert({
@@ -239,11 +262,7 @@ export async function POST(request: Request) {
         ...shared,
       })
       if (insErr) {
-        console.error('[ai/config POST] insert error:', insErr)
-        return NextResponse.json(
-          { error: 'Failed to save AI configuration' },
-          { status: 500 },
-        )
+        return saveErrorResponse(insErr, 'insert', provider)
       }
     }
 
